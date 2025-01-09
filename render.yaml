@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: telegram-bot
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python TelegramBotu.py
+    envVars:
+      - key: TELEGRAM_TOKEN
+        value: 7806413438:AAGao-5vJdpxxydutLHE_tl6rSIFm9MUeb4
+      - key: TOKEN_CONTRACT
+        value: EGmrt3JKU1go9qJf28cedB8XnDzFnYAwe8LSgaQ7pump
+      - key: CMC_API_KEY
+        value: 40f5055b-a7a8-43d3-bf6a-92a9850e0467 
