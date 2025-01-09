@@ -1,6 +1,6 @@
 services:
-  - type: web
-    name: telegram-bot
+  - type: worker
+    name: telegram-bot-worker
     env: python
     buildCommand: pip install -r requirements.txt
     startCommand: python TelegramBotu.py
@@ -10,4 +10,7 @@ services:
       - key: TOKEN_CONTRACT
         value: EGmrt3JKU1go9qJf28cedB8XnDzFnYAwe8LSgaQ7pump
       - key: CMC_API_KEY
-        value: 40f5055b-a7a8-43d3-bf6a-92a9850e0467 
+        value: 40f5055b-a7a8-43d3-bf6a-92a9850e0467
+      - key: CHAT_ID
+        sync: false
+    autoDeploy: true 

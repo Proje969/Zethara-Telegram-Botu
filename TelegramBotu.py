@@ -9,11 +9,19 @@ import pytz
 from typing import List, Dict
 import requests
 from requests.exceptions import RequestException
+import logging
+
+# Logging ayarları
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
+)
+logger = logging.getLogger(__name__)
 
 # Configuration
 TELEGRAM_TOKEN = "7806413438:AAGao-5vJdpxxydutLHE_tl6rSIFm9MUeb4"
 TOKEN_CONTRACT = "EGmrt3JKU1go9qJf28cedB8XnDzFnYAwe8LSgaQ7pump"
-CHAT_ID = os.getenv('CHAT_ID', '-1001234567890')  # Grup ID'nizi buraya ekleyin
+CHAT_ID = os.getenv('CHAT_ID', '-1001234567890')
 ADMIN_IDS = os.getenv('ADMIN_IDS', '').split(',')
 WEBSITE_URL = "https://atesin-kanatlari.onrender.com/"
 TWITTER_URL = "https://x.com/ZetharaOfficial"
@@ -29,7 +37,7 @@ stats = {
 
 async def welcome(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Welcome function for new members"""
-    if update.message.new_chat_members:
+    if update.message and update.message.new_chat_members:
         for new_member in update.message.new_chat_members:
             keyboard = [
                 [
@@ -166,17 +174,27 @@ async def coin_info_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def main():
     """Main function"""
-    application = Application.builder().token(TELEGRAM_TOKEN).build()
-    
-    # Add handlers
-    application.add_handler(MessageHandler(filters.STATUS_UPDATE.NEW_CHAT_MEMBERS, welcome))
-    application.add_handler(CallbackQueryHandler(button_callback))
-    application.add_handler(CommandHandler("top100", top_coins_command))
-    application.add_handler(CommandHandler("coin", coin_info_command))
-    
-    # Start bot
-    await application.run_polling()
+    try:
+        application = Application.builder().token(TELEGRAM_TOKEN).build()
+        
+        # Add handlers
+        application.add_handler(MessageHandler(filters.ChatType.GROUPS & filters.StatusUpdate.NEW_CHAT_MEMBERS, welcome))
+        application.add_handler(CallbackQueryHandler(button_callback))
+        application.add_handler(CommandHandler("top100", top_coins_command))
+        application.add_handler(CommandHandler("coin", coin_info_command))
+        
+        # Log başlangıç mesajı
+        logger.info("Bot başlatılıyor...")
+        
+        # Start bot
+        await application.run_polling(allowed_updates=Update.ALL_TYPES)
+        
+    except Exception as e:
+        logger.error(f"Bot çalışırken hata oluştu: {e}")
+        raise e
 
 if __name__ == "__main__":
-    port = int(os.getenv('PORT', 8080))
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except Exception as e:
+        logger.error(f"Kritik hata: {e}")
